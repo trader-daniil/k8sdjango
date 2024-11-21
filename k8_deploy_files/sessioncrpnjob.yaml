@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: session
+spec:
+  schedule: "* 10 * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 50
+      template:
+        spec:
+          containers:
+          - name: sessiondj
+            image: traderdaniil/k8s-djangoapp:v5
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: djsecret
+                  key: secret_key
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: djsecret
+                  key: allowed_hosts
+            - name: DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: djsecret
+                  key: debug
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: djsecret
+                  key: database_url
+            command:
+            - /bin/sh
+            - -c
+            - python manage.py clearsessions
+          restartPolicy: OnFailure
+          activeDeadlineSeconds: 200
