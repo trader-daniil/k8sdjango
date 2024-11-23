@@ -32,6 +32,14 @@ kubectl apply -f <Ваш файл>
 kubectl apply -f dj-dep.yaml
 ```
 
+## Service
+
+Создайте объект [Service](https://kubernetes.io/docs/concepts/services-networking/service/), выполнив команду
+
+```shell
+kubectl apply -f dj-service.yaml
+```
+
 
 ## Ingress
 
