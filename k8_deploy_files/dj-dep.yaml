@@ -22,27 +22,9 @@ spec:
         - name: web
           image: traderdaniil/k8s-djangoapp:v5
           imagePullPolicy: IfNotPresent
-          env:
-          - name: SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: djsecret
-                key: secret_key
-          - name: ALLOWED_HOSTS
-            valueFrom:
-              secretKeyRef:
-                name: djsecret
-                key: allowed_hosts
-          - name: DEBUG
-            valueFrom:
-              secretKeyRef:
-                name: djsecret
-                key: debug
-          - name: DATABASE_URL
-            valueFrom:
-              secretKeyRef:
-                name: djsecret
-                key: database_url
+          envFrom:
+          - secretRef:
+              name: djsecret
           ports:
             - containerPort: 80
               name: http
