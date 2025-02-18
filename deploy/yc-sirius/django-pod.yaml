@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: django
+  name: django
+spec:
+  volumes:
+  - name: secret-volume
+    secret:
+      secretName: dotfile-secret
+  containers:
+  - name: k8sdjango
+    image: traderdaniil/k8s-djangoapp:v5
+    imagePullPolicy: IfNotPresent
+    envFrom:
+    - secretRef:
+        name: djangosecret
+    ports:
+    - name: http
+      containerPort: 80
+    volumeMounts:
+    - name: secret-volume
+      readOnly: true
+      mountPath: "/root/.postgresql/"

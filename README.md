@@ -4,6 +4,13 @@
 
 Внутри папки k8s_deploy_files содержатся файлы для запуска приложения Django  в инфраструктуре K8S. Код самого приложения содержится в [репозитории](https://github.com/trader-daniil/django_admin)
 
+Есть 2 основные папки `deploy`, которая содержит файлы для запуска в проде. И  `local`, содержащая файлы для запуска на локальном хосте
+
+Сайт доступен по  [адресу](https://edu-tender-maxwell.sirius-k8s.dvmn.org/admin/)
+
+
+# Ниже представлены инструкции для запуска на локальном машине
+
 
 ## Переменные окружения
 
@@ -95,4 +102,51 @@ kubectl apply -f sessioncronjob.yaml
 
 ``` shell
 kubectl apply -f migratejob.yaml
+```
+
+# Ниже представлены инструкции по запуску в проде
+
+## Настройка БД
+
+В проекте используется БД, запущенная на другой виртуальной машине. Если вы используете PostgreSQL в yandexcloud, то Вам нужно получить [сертификат](https://yandex.cloud/ru/docs/managed-postgresql/operations/connect)
+
+После этого необходимо скопировать ваш ключ, декодировать его и прикрепить к вашему проекты с помощью [volumeMounts](https://kubernetes.io/docs/concepts/configuration/secret/), указав путь в mountPath "/root/.postgresql/"
+
+После этого создайте объект Secret, добавив в него перменную DATABASE_URL
+
+Затем внутри вашего приложения нужно создать переменную окружения с настройками БД `DATABASE_URL` [dj_database_url](https://pypi.org/project/dj-database-url/)
+
+Создайте Service командой
+
+``` shell
+kubectl apply -f pg-secret.yaml 
+```
+
+## Pod
+
+После того, как Вы создали Secret нужно создать [Pod](https://kubernetes.io/ru/docs/concepts/workloads/pods/). Мы будем загружать проект из [Dockerhub](https://hub.docker.com/repository/docker/traderdaniil/k8s-djangoapp)
+
+Создайте Pod командой
+
+``` shell
+kubectl apply -f django-pod.yaml 
+```
+
+## Service
+
+Создайте объект [Service](https://kubernetes.io/docs/concepts/services-networking/service/), выполнив команду
+
+```shell
+kubectl apply -f django-service.yaml
+```
+
+
+## Ingress
+
+В Вашем облвчном провайдере есть возможность выделить Вам доменное имя, если оно у Вас есть, то замените его в файле `django-ingress.yaml` на Ваше
+
+Создайте его командой
+
+``` shell
+kubectl apply -f django-ingress.yaml
 ```
